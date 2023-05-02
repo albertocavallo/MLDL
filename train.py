@@ -10,6 +10,7 @@ from torchvision.utils import save_image
 import torchvision.transforms as standard_transforms
 import torchvision.utils as vutils
 from tensorboardX import SummaryWriter
+from ptflops import get_model_complexity_info
 
 from model import ENet
 from config import cfg
@@ -70,6 +71,13 @@ def main():
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
 
+    #computing flops and number of parameters
+    flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
+    print(flops, num_parameters)
+    
+    #model size = (num_parameters*4/1024)/1024 --> size in MB
+    model_size = (num_parameters*4/1024)/1024
+    print("Model size: " + str(model_size) + " MB")
 
 def train(train_loader, net, criterion, optimizer, epoch):
     for i, data in enumerate(train_loader, 0):
