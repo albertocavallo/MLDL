@@ -72,12 +72,12 @@ def main():
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
 
     #computing flops and number of parameters
-    flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
-    print(flops, num_parameters)
+    #flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
+    #print(flops, num_parameters)
     
     #model size = (num_parameters*4/1024)/1024 --> size in MB
-    model_size = (num_parameters*4/1024)/1024
-    print("Model size: " + str(model_size) + " MB")
+    #model_size = (num_parameters*4/1024)/1024
+    #print("Model size: " + str(model_size) + " MB")
 
 def train(train_loader, net, criterion, optimizer, epoch):
     for i, data in enumerate(train_loader, 0):
@@ -107,8 +107,7 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
         #for binary classification
         outputs[outputs>0.5] = 1
         outputs[outputs<=0.5] = 0
-        #for multi-classification ???
-
+        
         iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
     mean_iu = iou_/len(val_loader)   
 

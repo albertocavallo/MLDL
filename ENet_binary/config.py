@@ -17,7 +17,7 @@ __C.VIS = edict()
 
 #------------------------------DATA------------------------
 
-__C.DATA.DATASET = 'city' # dataset
+__C.DATA.DATASET = 'ReSort-IT' # dataset
 __C.DATA.DATA_PATH = '/content/drive/MyDrive/dataset'
 __C.DATA.NUM_CLASSES = 1
 __C.DATA.IGNORE_LABEL = 255
@@ -49,7 +49,7 @@ __C.TRAIN.NUM_EPOCH_LR_DECAY = 1 #epoches
 
 __C.TRAIN.WEIGHT_DECAY = 2e-4
 
-__C.TRAIN.MAX_EPOCH = 1
+__C.TRAIN.MAX_EPOCH = 20
 
 # output 
 __C.TRAIN.PRINT_FREQ = 10
