@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from torch.utils import data
 import numpy as np
-from config.config import cfg
+from config import cfg
 
 processed_train_path = os.path.join(cfg.DATA.DATA_PATH, 'train')  # Path of training imgs
 processed_val_path = os.path.join(cfg.DATA.DATA_PATH, 'val')  # Path of validation imgs
