@@ -5,11 +5,11 @@ from torch.optim.lr_scheduler import StepLR
 import torchvision.transforms as standard_transforms
 from tensorboardX import SummaryWriter
 
-from model.model_icnet import ICNet
-from dataset.loading_data import loading_data
-from util.utils import *
-from util.timer import Timer
-from model.icnet_loss import ICNetLoss
+from model_I import ICNet
+from loading_data import loading_data
+from utils import *
+from timer import Timer
+from loss_I import ICNetLoss
 
 
 exp_name = cfg.TRAIN.EXP_NAME
