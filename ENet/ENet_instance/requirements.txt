@@ -1,0 +1,2 @@
+tensorboardX==2.6
+ptflops
