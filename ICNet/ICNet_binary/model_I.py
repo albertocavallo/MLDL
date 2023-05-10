@@ -7,8 +7,8 @@ import torch.nn.functional as F
 from collections import OrderedDict
 import torchvision.models as models
 
-from model.base import BaseModel
-from model.resnet import ResNet
+from base_I import BaseModel
+from model_I import ResNet
 
 
 # ------------------------------------------------------------------------------
