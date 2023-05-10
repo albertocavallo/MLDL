@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import os
 import shutil
-from config.config import cfg
+from config import cfg
 
 def weights_init_kaiming(m):
     if isinstance(m, nn.Conv2d):
