@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 import torchsummary
-from util_I import add_flops_counting_methods, flops_to_string
+from utils_I import add_flops_counting_methods, flops_to_string
 
 
 # ------------------------------------------------------------------------------
