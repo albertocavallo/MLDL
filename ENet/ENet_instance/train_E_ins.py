@@ -92,6 +92,9 @@ def main():
     #print("Model size: " + str(model_size) + " MB")
 
 def train(train_loader, net, criterion, optimizer, epoch):
+
+    avg_loss = np.array([])
+    
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data
         inputs = Variable(inputs).cuda()
@@ -99,37 +102,14 @@ def train(train_loader, net, criterion, optimizer, epoch):
    
         optimizer.zero_grad()
         outputs = net(inputs)
-        #loss = criterion(outputs, labels.unsqueeze(1).float())
-        #for cross entropy loss
-        loss = criterion(outputs, labels.squeeze(1).long())
+
+        loss = criterion(outputs, labels.long())
+        avg_loss = np.append(avg_loss, loss.data.cpu().numpy())
+        
         loss.backward()
         optimizer.step()
-
-
-def validate(val_loader, net, criterion, optimizer, epoch, restore):
-    net.eval()
-    criterion.cpu()
-    input_batches = []
-    output_batches = []
-    label_batches = []
-    iou_ = 0.0
-    for vi, data in enumerate(val_loader, 0):
-        inputs, labels = data
-        inputs = Variable(inputs, volatile=True).cuda()
-        labels = Variable(labels, volatile=True).cuda()
-        outputs = net(inputs)
-        #for binary classification
-        outputs[outputs>0.5] = 1
-        outputs[outputs<=0.5] = 0
-
-        #outputs.squeeze(1) è usato per togliere la dimensione 1 --> così ho la size uguale a labels
-        iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
-    mean_iu = iou_/len(val_loader)   
-
-    print('[mean iu %.4f]' % (mean_iu)) 
-    net.train()
-    criterion.cuda()
-
+        
+    print("AVG LOSS: " + str(np.mean(avg_loss)))
     
 def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
     net.eval()
