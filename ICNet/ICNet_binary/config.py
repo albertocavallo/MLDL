@@ -17,7 +17,7 @@ __C.VIS = edict()
 
 # ------------------------------DATA------------------------
 
-__C.DATA.DATASET = 'city'  # dataset
+__C.DATA.DATASET = 'Restort_IT'  # dataset
 __C.DATA.DATA_PATH = '/content/drive/MyDrive/MLDL proj/dataset'  # path of the dataset folder
 __C.DATA.NUM_CLASSES = 1  # Num of classes
 __C.DATA.IGNORE_LABEL = 255
