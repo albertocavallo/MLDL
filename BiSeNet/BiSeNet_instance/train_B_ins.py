@@ -110,7 +110,7 @@ def train(train_loader, net, criterion, optimizer, epoch):
           loss2 += criterion(outputs2[:,i,:,:], labels.float())
           loss3 += criterion(outputs3[:,i,:,:], labels.float())
         '''
-        loss =(loss1+loss2+loss3)/5
+        loss =loss1+loss2+loss3
         
         loss.backward()
         
