@@ -106,18 +106,11 @@ def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
         # multi-classification --> softmax
         outputs = F.softmax(outputs, dim=1)
 
-        for c in range(num_classes):
-            # prediction mask
-            pred_mask = (outputs.argmax(dim=1) == c).cpu().numpy()
+        miou, class_iou = calculate_mean_iu(outputs, labels, 5)
 
-            # labels mask
-            labels_mask = (labels == c).cpu().numpy()
-
-            # computation of the iou for that class using the function in utils.py
-            class_iou = calculate_mean_iu(pred_mask, labels_mask, 2)
-
-            # accumulate the values in an array
-            iou_sum_classes[c] += class_iou
+        # accumulate the values in an array
+        for c in range(5):
+            iou_sum_classes[c] += class_iou[c]
 
     # dividing each value for len(val_loader)
     mean_iu_classes = [x / len(val_loader) for x in iou_sum_classes]
