@@ -101,12 +101,15 @@ def train(train_loader, net, criterion, optimizer, epoch):
         outputs1, outputs2, outputs3= net(inputs)
 
         loss1=loss2=loss3 = 0
-
+        loss1 += criterion(outputs1, labels)
+        loss2 += criterion(outputs2, labels)
+        loss3 += criterion(outputs3, labels)
+        '''
         for i in range(5):
           loss1 += criterion(outputs1[:,i,:,:], labels.float())
           loss2 += criterion(outputs2[:,i,:,:], labels.float())
           loss3 += criterion(outputs3[:,i,:,:], labels.float())
-
+        '''
         loss =(loss1+loss2+loss3)/5
         
         loss.backward()
