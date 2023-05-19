@@ -6,11 +6,13 @@ import os
 import shutil
 from config import cfg
 
+
 def weights_init_kaiming(m):
     if isinstance(m, nn.Conv2d):
         #kaiming is first name of author whose last name is 'He' lol
         nn.init.kaiming_uniform(m.weight) 
         m.bias.data.zero_()
+
 
 def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
     """Sets the learning rate to the initially 
@@ -18,6 +20,7 @@ def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
     new_lr = lr * (decay ** (cur_epoch // n_epochs))
     for param_group in optimizer.param_groups:
         param_group['lr'] = new_lr
+
 
 def calculate_mean_iu(predictions, gts, num_classes):
     sum_iu = 0
