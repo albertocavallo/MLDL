@@ -20,7 +20,7 @@ class ICNetLoss(nn.CrossEntropyLoss):
         preds, target = tuple(inputs)
         inputs = tuple(list(preds) + [target])
 
-        pred, pred_sub4, pred_sub8, pred_sub16, target = tuple(inputs)
+        pred_sub4, pred_sub8, pred_sub16, target = tuple(inputs)
         # [batch, H, W] -> [batch, 1, H, W]
         target = target.unsqueeze(1).float()
         target_sub4 = F.interpolate(target, pred_sub4.size()[2:], mode='bilinear', align_corners=True).squeeze(1).long()
