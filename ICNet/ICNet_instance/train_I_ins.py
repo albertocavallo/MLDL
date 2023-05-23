@@ -93,7 +93,6 @@ def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
 
     num_classes = 5
     iou_sum_classes = [0, 0, 0, 0, 0]
-    tot_loader = 0
 
     for vi, data in enumerate(val_loader, 0):
 
@@ -107,14 +106,14 @@ def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
         # multi-classification --> softmax
         outputs = F.softmax(outputs, dim=1)
 
-        miou, class_iou = calculate_mean_iu(outputs, labels, 5)
-        # accumulate the values in an array
-        for c in range(5):
-            tot_loader += len(val_loader)
-            iou_sum_classes[c] += class_iou[c]*len(val_loader)
+        for c in range(num_classes):
+            pred_mask = (outputs.argmax(dim=1) == c).cpu().numpy()
+            labels_mask = (labels == c).cpu().numpy()
+            class_iou = calculate_mean_iu(pred_mask, labels_mask, 5)
+            iou_sum_classes[c] += class_iou
 
     # dividing each value for len(val_loader)
-    mean_iu_classes = [x / tot_loader for x in iou_sum_classes]
+    mean_iu_classes = [x / len(val_loader) for x in iou_sum_classes]
 
     print(f"MEAN IOU - NOTHING (0): {mean_iu_classes[0]}")
     print(f"MEAN IOU - ALU     (1): {mean_iu_classes[1]}")
