@@ -24,19 +24,15 @@ def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
 
 def calculate_mean_iu(predictions, gts, num_classes):
     sum_iu = 0
-    mean_iu_classes = []
     for i in range(num_classes):
         n_ii = t_i = sum_n_ji = 1e-9
         for p, gt in zip(predictions, gts):
             n_ii += np.sum(gt[p == i] == i)
             t_i += np.sum(gt == i)
             sum_n_ji += np.sum(p == i)
-        s = float(n_ii) / (t_i + sum_n_ji - n_ii)
-        sum_iu += s
-        mean_iu_classes.append(s)
+        sum_iu += float(n_ii) / (t_i + sum_n_ji - n_ii)
     mean_iu = sum_iu / num_classes
-    return mean_iu, mean_iu_classes
-
+    return mean_iu
 
 class CrossEntropyLoss2d(nn.Module):
     def __init__(self, weight=None, size_average=True):
