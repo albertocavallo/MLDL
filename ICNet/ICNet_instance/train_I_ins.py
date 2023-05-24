@@ -109,7 +109,7 @@ def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
         for c in range(num_classes):
             pred_mask = (outputs.argmax(dim=1) == c).cpu().numpy()
             labels_mask = (labels == c).cpu().numpy()
-            class_iou = calculate_mean_iu(pred_mask, labels_mask, 5)
+            class_iou = calculate_mean_iu(pred_mask, labels_mask, 2)
             iou_sum_classes[c] += class_iou
 
     # dividing each value for len(val_loader)
