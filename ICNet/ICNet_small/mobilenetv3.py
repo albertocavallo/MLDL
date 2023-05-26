@@ -115,6 +115,7 @@ class MobileNetV3_Small(nn.Module):
             Block(5, 96, 576, 96, act, True, 1),
         )
 
+        self.relu = nn.ReLU
         self.conv2 = nn.Conv2d(96, 576, kernel_size=1, stride=1, padding=0, bias=False)
         self.bn2 = nn.BatchNorm2d(576)
         self.hs2 = act(inplace=True)

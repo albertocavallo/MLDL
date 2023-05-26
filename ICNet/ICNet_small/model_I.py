@@ -155,7 +155,7 @@ class ICNet(BaseModel):
 		# Stage1
 		x = self.backbone.conv1(input)
 		x = self.backbone.bn1(x)
-		x = self.backbone.ReLU(x)
+		x = self.backbone.relu(x)
 		# Stage2
 		x = self.backbone.maxpool(x)
 		x = self.backbone.layer1(x)
