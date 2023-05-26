@@ -101,6 +101,7 @@ class ICNet(BaseModel):
 		# Sub2 and Sub4
 		self.backbone = MobileNetV3_Large()  # Define the backbone to be ResNet34 (pretrained)
 		self.backbone.load_state_dict(torch.load("450_act3_mobilenetv3_large.pth", map_location='cpu'))
+		self.backbone.load_state_dict(torch.load("450_act3_mobilenetv3_large.pth", map_location='cpu'))
 
 		self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
 		self.conv_sub4_reduce = ConvBlock(stage5_channels, stage5_channels//4, kernel_size=1, bias=False)
@@ -154,7 +155,7 @@ class ICNet(BaseModel):
 		# Stage1
 		x = self.backbone.conv1(input)
 		x = self.backbone.bn1(x)
-		x = self.backbone.relu(x)
+		x = self.backbone.ReLU(x)
 		# Stage2
 		x = self.backbone.maxpool(x)
 		x = self.backbone.layer1(x)
