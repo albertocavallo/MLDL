@@ -1,5 +1,6 @@
 import torch
 from torchvision import models
+from mobilenetv3 import MobileNetV3_Large
 
 
 class resnet18(torch.nn.Module):
@@ -59,6 +60,7 @@ class resnet101(torch.nn.Module):
 def build_contextpath(name):
     model = {
         'resnet18': resnet18(pretrained=True),
-        'resnet101': resnet101(pretrained=True)
+        'resnet101': resnet101(pretrained=True),
+        'mobilenetv3': MobileNetV3_Large()
     }
     return model[name]
