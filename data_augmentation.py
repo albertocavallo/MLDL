@@ -32,8 +32,6 @@ def augment_images(input_folder, output_folder, input_folder_l, output_folder_l,
                 output_filename = f'{output_path}_augmented_{i}.jpg'
                 cv2.imwrite(output_filename, augmented_image)
 
-                print(f'Saved augmented image: {output_filename}')
-
     print('Data augmentation, train images completed.')
 
     for filename in os.listdir(input_folder_l):
