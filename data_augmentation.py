@@ -3,24 +3,23 @@ from imgaug import augmenters as iaa
 import cv2
 import numpy as np
 
-def zoom_image(image, scale):
-    height, width = image.shape[:2]
-    zoom_matrix = np.array([[scale, 0, (1 - scale) * width / 2],
-                            [0, scale, (1 - scale) * height / 2],
-                            [0, 0, 1]])
-    return cv2.warpPerspective(image, zoom_matrix, (width, height))
-
 def augment_images(input_folder, output_folder, input_folder_l, output_folder_l, augmentation_factor):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     seq = iaa.Sequential([
-        iaa.Fliplr(0.5),  # Flip images horizontally with a 50% chance
-        iaa.Flipud(0.5),  # Flip images vertically with a 50% chance
-        iaa.Affine(rotate=(-20, 20)),  # Rotate images by -20 to +20 degrees
-        iaa.Affine(scale={"x": (0.8, 1.2), "y": (0.8, 1.2)})
+        iaa.Fliplr(1),  
+        iaa.Flipud(1), 
+        iaa.Affine(rotate=(0, 180)),
+      # other augmentation
     ])
     
+    x=0
+    num=2750
+    
     for filename in os.listdir(input_folder):
+        if x==num:
+            break
+        x+=1
         if filename.endswith('.jpg') or filename.endswith('.png'):  
             input_path = os.path.join(input_folder, filename)
             output_path = os.path.join(output_folder, filename.split('.')[0])
