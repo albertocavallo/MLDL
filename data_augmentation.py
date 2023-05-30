@@ -14,42 +14,36 @@ def augment_images(input_folder, output_folder, input_folder_l, output_folder_l,
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     seq = iaa.Sequential([
-        iaa.Fliplr(0.5),  # horizontally flip 50% of images
-        iaa.GaussianBlur(sigma=(0, 1.0)),  # apply Gaussian blur with sigma between 0 and 1.0
-        iaa.Affine(rotate=(0, 90))  # rotate images between -45 and 45 degrees
+        iaa.Fliplr(0.5),  # Flip images horizontally with a 50% chance
+        iaa.Flipud(0.5),  # Flip images vertically with a 50% chance
+        iaa.Affine(rotate=(-20, 20)),  # Rotate images by -20 to +20 degrees
+        iaa.Affine(scale={"x": (0.8, 1.2), "y": (0.8, 1.2)})
     ])
-    x=0
+    
     for filename in os.listdir(input_folder):
-        x+=1
-        if(x==2): exit
         if filename.endswith('.jpg') or filename.endswith('.png'):  
             input_path = os.path.join(input_folder, filename)
             output_path = os.path.join(output_folder, filename.split('.')[0])
+            input_path_l = os.path.join(input_folder_l, filename)
+            output_path_l = os.path.join(output_folder_l, filename.split('.')[0])  
+
             image = cv2.imread(input_path)
+            label = cv2.imread(input_path_l)
+
             for i in range(augmentation_factor):
+                # IMAGES
                 augmented_image = seq.augment_image(image)
-                augmented_image=zoom_image(augmented_image, 1.5)
                 output_filename = f'{output_path}_augmented_{i}.jpg'
                 cv2.imwrite(output_filename, augmented_image)
 
-    print('Data augmentation, train images completed.')
+                # LABELS
+                augmented_label = seq.augment_image(label)
+                augmented_label = cv2.cvtColor(augmented_label, cv2.COLOR_BGR2GRAY)
+                output_filename_l = f'{output_path_l}_augmented_{i}.jpg'
+                cv2.imwrite(output_filename_l, augmented_label)
 
-    for filename in os.listdir(input_folder_l):
-        if filename.endswith('.jpg') or filename.endswith('.png'): 
-            input_path = os.path.join(input_folder_l, filename)
-            output_path = os.path.join(output_folder_l, filename.split('.')[0])  
+    print('Data augmentation completed.')
 
-            image = cv2.imread(input_path)
-
-            for i in range(augmentation_factor):
-                augmented_image = seq.augment_image(image)
-                augmented_image=zoom_image(augmented_image, 1.5)
-                augmented_image = cv2.cvtColor(augmented_image, cv2.COLOR_BGR2GRAY)
-
-                output_filename = f'{output_path}_augmented_{i}.jpg'
-                cv2.imwrite(output_filename, augmented_image)
-
-    print('Data augmentation, train labels completed.')
 
 
 input_folder = '/content/drive/MyDrive/dataset/train'
