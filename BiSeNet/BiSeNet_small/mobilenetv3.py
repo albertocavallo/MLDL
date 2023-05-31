@@ -91,7 +91,6 @@ class Block(nn.Module):
         return self.act3(out + skip)
 
 
-
 class MobileNetV3_Small(nn.Module):
     def __init__(self, num_classes=1000, act=nn.Hardswish):
         super(MobileNetV3_Small, self).__init__()
@@ -112,7 +111,6 @@ class MobileNetV3_Small(nn.Module):
             Block(5, 96, 576, 96, act, True, 1),
             Block(5, 96, 576, 96, act, True, 1),
         )
-
 
         self.conv2 = nn.Conv2d(96, 576, kernel_size=1, stride=1, padding=0, bias=False)
         self.bn2 = nn.BatchNorm2d(576)

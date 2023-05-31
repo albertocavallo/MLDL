@@ -99,9 +99,7 @@ class ICNet(BaseModel):
 		]))
 
 		# Sub2 and Sub4
-		self.backbone = MobileNetV3_Large()  # Define the backbone to be ResNet34 (pretrained)
-		self.backbone.load_state_dict(torch.load("450_act3_mobilenetv3_large.pth", map_location='cpu'))
-		self.backbone.load_state_dict(torch.load("450_act3_mobilenetv3_large.pth", map_location='cpu'))
+		self.backbone = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
 
 		self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
 		self.conv_sub4_reduce = ConvBlock(stage5_channels, stage5_channels//4, kernel_size=1, bias=False)
