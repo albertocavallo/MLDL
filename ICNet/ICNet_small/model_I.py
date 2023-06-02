@@ -125,12 +125,11 @@ class ICNet(BaseModel):
 		x_sub4 = self.ppm(x_sub4)
 		x_sub4 = self.conv_sub4_reduce(x_sub4)
 
+		print(x_sub4.shape, x_sub2.shape)
+
 		# Output
 		if self.training:
 			# Cascade Feature Fusion
-			print(x_sub4.shape, x_sub2.shape)
-			x_sub2 = x_sub2.view(16, 96, x_sub2.shape[2], -1)
-			x_sub4 = x_sub4.view(16, 320, x_sub4.shape[2], -1)
 			x_cff_24, x_24_cls = self.cff_24(x_sub4, x_sub2)
 			x_cff_12, x_12_cls = self.cff_12(x_cff_24, x_sub1)
 
@@ -173,3 +172,11 @@ class ICNet(BaseModel):
 			elif isinstance(m, nn.BatchNorm2d):
 				nn.init.constant_(m.weight, 1)
 				nn.init.constant_(m.bias, 0)
+
+def conv_adjust(self, input, target_channels):
+    channels = input.shape[1]
+    if channels != target_channels:
+        adjustment = nn.Conv2d(channels, target_channels, kernel_size=1, bias=False)
+        return adjustment(input)
+    else:
+        return input
