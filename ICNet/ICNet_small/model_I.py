@@ -89,7 +89,7 @@ class ICNet(BaseModel):
 	def __init__(self, num_classes=1):
 		super(ICNet, self).__init__()
 		n_layers = 34
-		stage5_channels = 1280
+		stage5_channels = 32
 
 		# Sub1
 		self.conv_sub1 = nn.Sequential(OrderedDict([
@@ -104,11 +104,11 @@ class ICNet(BaseModel):
 		self.conv_sub4_reduce = ConvBlock(stage5_channels, stage5_channels//4, kernel_size=1, bias=False)
 
 		# Cascade Feature Fusion
-		self.cff_24 = CascadeFeatFusion(low_channels=stage5_channels//4, high_channels=96, out_channels=96, num_classes=num_classes)
-		self.cff_12 = CascadeFeatFusion(low_channels=96, high_channels=64, out_channels=128, num_classes=num_classes)
+		self.cff_24 = CascadeFeatFusion(low_channels=stage5_channels//4, high_channels=16, out_channels=8, num_classes=num_classes)
+		self.cff_12 = CascadeFeatFusion(low_channels=8, high_channels=64, out_channels=8, num_classes=num_classes)
 
 		# Classification
-		self.conv_cls = nn.Conv2d(in_channels=128, out_channels=num_classes, kernel_size=1, bias=False)
+		self.conv_cls = nn.Conv2d(in_channels=8, out_channels=num_classes, kernel_size=1, bias=False)
 
 		self._init_weights()
 
@@ -124,8 +124,6 @@ class ICNet(BaseModel):
 		x_sub4 = self._run_backbone_sub4(x_sub4)
 		x_sub4 = self.ppm(x_sub4)
 		x_sub4 = self.conv_sub4_reduce(x_sub4)
-
-		print(x_sub4.shape, x_sub2.shape)
 
 		# Output
 		if self.training:
@@ -151,15 +149,13 @@ class ICNet(BaseModel):
 
 	def _run_backbone_sub2(self, input):
 		# Stage1
-		x = self.backbone.features[:7](input)
-		# Stage2
-		x = self.backbone.features[7:14](x)
+		x = self.backbone.features[:2](input)
   
 		return x
 
 	def _run_backbone_sub4(self, input):
 		# Stage4
-		x = self.backbone.features[14:](input)
+		x = self.backbone.features[2:7](input)
 		
 		return x
 
@@ -173,7 +169,7 @@ class ICNet(BaseModel):
 				nn.init.constant_(m.weight, 1)
 				nn.init.constant_(m.bias, 0)
 
-def conv_adjust(self, input, target_channels):
+def conv_adjust(input, target_channels):
     channels = input.shape[1]
     if channels != target_channels:
         adjustment = nn.Conv2d(channels, target_channels, kernel_size=1, bias=False)
