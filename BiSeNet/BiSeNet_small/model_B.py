@@ -105,7 +105,18 @@ class BiSeNet(torch.nn.Module):
             self.supervision2 = nn.Conv2d(in_channels=512, out_channels=num_classes, kernel_size=1)
             # build feature fusion module
             self.feature_fusion_module = FeatureFusionModule(num_classes, 1024)
+   
+        elif context_path == 'mobilenetv2':
+            # build attention refinement module for shufflenet
+            self.attention_refinement_module1 = AttentionRefinementModule(32, 32)  # Adjust channel dimensions for ShuffleNet
+            self.attention_refinement_module2 = AttentionRefinementModule(64, 64)  # Adjust channel dimensions for ShuffleNet
 
+            # supervision block
+            self.supervision1 = nn.Conv2d(in_channels=32, out_channels=num_classes, kernel_size=1)
+            self.supervision2 = nn.Conv2d(in_channels=64, out_channels=num_classes, kernel_size=1)
+
+            # build feature fusion module
+            self.feature_fusion_module = FeatureFusionModule(num_classes, 352)
         else:
             print('Error: unspport context_path network \n')
 
