@@ -72,15 +72,25 @@ def main():
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time' : Timer(),'val time' : Timer()} 
     validate(val_loader, net, criterion, optimizer, -1, restore_transform)
+
+    losses = np.array([])
+
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
+        print(f"EPOCH {epoch+1}")
+
         _t['train time'].tic()
-        train(train_loader, net, criterion, optimizer, epoch)
+        loss = train(train_loader, net, criterion, optimizer, epoch)
+        losses = np.append(losses, loss)
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
+        
         _t['val time'].tic()
         validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
+
+    print("LOSSES VECTOR")
+    print(losses)
 '''
     #computing flops and number of parameters
     flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
@@ -91,7 +101,9 @@ def main():
     print("Model size: " + str(model_size) + " MB")
 '''
 def train(train_loader, net, criterion, optimizer, epoch):
-    print('OH SI')
+
+    avg_loss = np.array([])
+    
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data
         inputs = Variable(inputs).cuda()
@@ -112,9 +124,15 @@ def train(train_loader, net, criterion, optimizer, epoch):
         '''
         loss =loss1+loss2+loss3
         
+        avg_loss = np.append(avg_loss, loss.data.cpu().numpy())
+        
         loss.backward()
         
         optimizer.step()
+
+    print("AVG LOSS: " + str(np.mean(avg_loss)))
+    return np.mean(avg_loss)
+
 
 
 def validate(val_loader, net, criterion, optimizer, epoch, restore):

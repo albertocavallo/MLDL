@@ -47,17 +47,23 @@ def main():
     _t = {'train time': Timer(), 'val time': Timer()}
     validate_instanceSeg(val_loader, net, criterion, optimizer, -1, restore_transform)
 
+    losses = np.array([])
+
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
         print(f"EPOCH {epoch + 1}")
         _t['train time'].tic()
-        train(train_loader, net, criterion, optimizer, epoch)
+        loss = train(train_loader, net, criterion, optimizer, epoch)
+        losses = np.append(losses, loss)
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
+        
         _t['val time'].tic()
         validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
-
+    
+    print("LOSSES VECTOR")
+    print(losses)
     # computing flops and number of parameters
     # flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
     # print(flops, num_parameters)
@@ -85,6 +91,7 @@ def train(train_loader, net, criterion, optimizer, epoch):
         optimizer.step()
 
     print("AVG LOSS: " + str(np.mean(avg_loss)))
+    return np.mean(avg_loss)
 
 
 def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
