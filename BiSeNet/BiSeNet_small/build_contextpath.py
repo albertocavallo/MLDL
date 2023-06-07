@@ -56,11 +56,28 @@ class resnet101(torch.nn.Module):
         tail = torch.mean(tail, 2, keepdim=True)
         return feature3, feature4, tail
 
+class mobilenetv2(torch.nn.Module):
+    def __init__(self, pretrained=True):
+        super().__init__()
+        self.features = models.mobilenet_v2(pretrained=pretrained).features
+
+    def forward(self, input):
+        x = self.features[0](input)
+        x = self.features[1:4](x)
+        feature1 = self.features[4](x)  # 1 / 4
+        feature2 = self.features[5](feature1)  # 1 / 8
+        feature3 = self.features[6](feature2)  # 1 / 16
+        feature4 = self.features[7](feature3)  # 1 / 32
+        # global average pooling to build tail
+        tail = torch.mean(feature4, dim=(2, 3), keepdim=True)
+        return feature3, feature4, tail
+
+
 
 def build_contextpath(name):
     model = {
         'resnet18': resnet18(pretrained=True),
         'resnet101': resnet101(pretrained=True),
-        'mobilenetv3': MobileNetV3_Large()
+        'mobilenetv2': mobilenetv2()
     }
     return model[name]
