@@ -18,6 +18,8 @@ from utils import *
 from timer import Timer
 import pdb
 import torch.nn.functional as F
+import torch.nn.utils.prune as prune
+import torch.nn as nn
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
@@ -82,6 +84,16 @@ def main():
         validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
+        
+        for module in net.modules():
+            if isinstance(module, nn.Conv2d):
+                prune.l1_unstructured(module, name='weight', amount=0.4)
+            elif isinstance(module, nn.Linear):
+                prune.l1_unstructured(module, name='weight', amount=0.4)
+        # Remove the pruning reparameterization buffers
+        for module in net.modules():
+            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
+                prune.remove(module, name='weight')
 '''
     #computing flops and number of parameters
     flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
