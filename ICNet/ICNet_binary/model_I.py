@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
 import torchvision.models as models
+ùimport torch.nn.utils.prune as prune
+
 
 from base_I import BaseModel
 

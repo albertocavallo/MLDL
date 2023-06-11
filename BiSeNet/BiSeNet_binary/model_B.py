@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 from build_contextpath import build_contextpath
+import torch.nn.utils.prune as prune
+
 import warnings
 warnings.filterwarnings(action='ignore')
 
