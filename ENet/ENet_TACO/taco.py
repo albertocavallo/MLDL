@@ -5,8 +5,8 @@ from torch.utils import data
 import numpy as np
 from config import cfg
 
-processed_train_path = cfg.DATA.TACO
-processed_val_path = cfg.DATA.TACO
+processed_train_path = cfg.DATA.TACO_PATH
+processed_val_path = cfg.DATA.TACO_PATH
 
 
 def default_loader(path):
@@ -28,7 +28,7 @@ def make_dataset(mode):
                     images.append(item)
     elif mode == 'val':
         processed_val_img_path = processed_val_path
-        processed_val_mask_path = cfg.DATA.DATA_PATH
+        processed_val_mask_path = cfg.DATA.TACO_PATH
         for batch_dir in os.listdir(processed_val_img_path):
             batch_img_path = os.path.join(processed_val_img_path, batch_dir)
             batch_mask_path = os.path.join(processed_val_mask_path, 'labels', batch_dir)
@@ -37,10 +37,12 @@ def make_dataset(mode):
                     item = (os.path.join(batch_img_path, img_name),
                             os.path.join(batch_mask_path, img_name))
                     images.append(item)
+
+    print('TACO images okk')
     return images
 
 
-class Taco(data.Dataset):
+class taco(data.Dataset):
     def __init__(self, mode, simul_transform=None, transform=None, target_transform=None):
         self.imgs = make_dataset(mode)
         if len(self.imgs) == 0:
