@@ -10,6 +10,8 @@ from loading_data import loading_data
 from utils import *
 from timer import Timer
 from loss_I import ICNetLoss
+import torch.nn.utils.prune as prune
+import torch.nn as nn
 
 
 exp_name = cfg.TRAIN.EXP_NAME
@@ -77,6 +79,16 @@ def main():
         validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
+        
+        for module in net.modules():
+            if isinstance(module, nn.Conv2d):
+                prune.l1_unstructured(module, name='weight', amount=0.4)
+            elif isinstance(module, nn.Linear):
+                prune.l1_unstructured(module, name='weight', amount=0.4)
+        # Remove the pruning reparameterization buffers
+        for module in net.modules():
+            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
+                prune.remove(module, name='weight')
 
 
 # Define the training function that takes in the data loader, the model, the loss function, the optimizer, and the epoch
