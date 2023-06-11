@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
 import torchvision.models as models
-
+from mobilenetv3 import MobileNetV3_Large
 from base_I import BaseModel
 
 
@@ -89,7 +89,7 @@ class ICNet(BaseModel):
 	def __init__(self, num_classes=1):
 		super(ICNet, self).__init__()
 		n_layers = 34
-		stage5_channels = 32
+		stage5_channels = 512
 
 		# Sub1
 		self.conv_sub1 = nn.Sequential(OrderedDict([
@@ -99,16 +99,17 @@ class ICNet(BaseModel):
 		]))
 
 		# Sub2 and Sub4
-		self.backbone = models.mobilenet_v2(pretrained=True) # Define the backbone to be ResNet34 (pretrained)
+		self.backbone = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=True)
+
 		self.ppm = PyramidPoolingModule(pyramids=self.pyramids)
 		self.conv_sub4_reduce = ConvBlock(stage5_channels, stage5_channels//4, kernel_size=1, bias=False)
 
 		# Cascade Feature Fusion
-		self.cff_24 = CascadeFeatFusion(low_channels=stage5_channels//4, high_channels=16, out_channels=8, num_classes=num_classes)
-		self.cff_12 = CascadeFeatFusion(low_channels=8, high_channels=64, out_channels=8, num_classes=num_classes)
+		self.cff_24 = CascadeFeatFusion(low_channels=stage5_channels//4, high_channels=128, out_channels=128, num_classes=num_classes)
+		self.cff_12 = CascadeFeatFusion(low_channels=128, high_channels=64, out_channels=128, num_classes=num_classes)
 
 		# Classification
-		self.conv_cls = nn.Conv2d(in_channels=8, out_channels=num_classes, kernel_size=1, bias=False)
+		self.conv_cls = nn.Conv2d(in_channels=128, out_channels=num_classes, kernel_size=1, bias=False)
 
 		self._init_weights()
 
@@ -119,6 +120,7 @@ class ICNet(BaseModel):
 		# Sub2
 		x_sub2 = F.interpolate(input, scale_factor=0.5, mode='bilinear', align_corners=True)
 		x_sub2 = self._run_backbone_sub2(x_sub2)
+
 		# Sub4
 		x_sub4 = F.interpolate(x_sub2, scale_factor=0.5, mode='bilinear', align_corners=True)
 		x_sub4 = self._run_backbone_sub4(x_sub4)
@@ -149,14 +151,21 @@ class ICNet(BaseModel):
 
 	def _run_backbone_sub2(self, input):
 		# Stage1
-		x = self.backbone.features[:2](input)
-  
+		x = self.backbone.conv1(input)
+		x = self.backbone.bn1(x)
+		x = self.backbone.relu(x)
+		# Stage2
+		x = self.backbone.maxpool(x)
+		x = self.backbone.layer1(x)
+		# Stage3
+		x = self.backbone.layer2(x)
 		return x
 
 	def _run_backbone_sub4(self, input):
 		# Stage4
-		x = self.backbone.features[2:7](input)
-		
+		x = self.backbone.layer3(input)
+		# Stage5
+		x = self.backbone.layer4(x)
 		return x
 
 	def _init_weights(self):
@@ -168,11 +177,3 @@ class ICNet(BaseModel):
 			elif isinstance(m, nn.BatchNorm2d):
 				nn.init.constant_(m.weight, 1)
 				nn.init.constant_(m.bias, 0)
-
-def conv_adjust(input, target_channels):
-    channels = input.shape[1]
-    if channels != target_channels:
-        adjustment = nn.Conv2d(channels, target_channels, kernel_size=1, bias=False)
-        return adjustment(input)
-    else:
-        return input

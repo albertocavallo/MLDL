@@ -1,2 +1,10 @@
 tensorboardX==2.6
-ptflops
+ptflops~=0.7
+
+torch~=2.0.1
+numpy~=1.24.3
+Pillow~=9.5.0
+torchvision~=0.15.2
+torchsummary~=1.5.1
+opencv-python~=4.7.0.72
+imgaug~=0.4.0
