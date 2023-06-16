@@ -1,7 +1,7 @@
 import sys
 
 sys.path.append("../..")
-import config as cfg
+from config import cfg
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
