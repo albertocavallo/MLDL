@@ -6,13 +6,18 @@ from torch import optim
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import StepLR
 import torchvision.transforms as standard_transforms
-from tensorboardX import SummaryWriter
-
 from model_I import ICNet
 from loading_data import loading_data
 from utils import *
 from timer import Timer
 from loss_I import ICNetLoss
+import sys
+
+sys.path.append("../..")
+
+from config import cfg
+from loading_data import loading_data
+
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
@@ -23,7 +28,7 @@ train_loader, val_loader, restore_transform = loading_data()
 
 
 def main():
-    cfg_file = open('./config.py', "r")
+    cfg_file = open('../../config.py', "r")
     cfg_lines = cfg_file.readlines()
 
     with open(log_txt, 'a') as f:
@@ -45,15 +50,11 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=cfg.TRAIN.LR, weight_decay=cfg.TRAIN.WEIGHT_DECAY)
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time': Timer(), 'val time': Timer()}
-    validate_instanceSeg(val_loader, net, criterion, optimizer, -1, restore_transform)
-
-    losses = np.array([])
 
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
         print(f"EPOCH {epoch + 1}")
         _t['train time'].tic()
-        loss = train(train_loader, net, criterion, optimizer, epoch)
-        losses = np.append(losses, loss)
+        train(train_loader, net, criterion, optimizer, epoch)
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
         
@@ -61,17 +62,6 @@ def main():
         validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
-    
-    print("LOSSES VECTOR")
-    print(losses)
-    # computing flops and number of parameters
-    # flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
-    # print(flops, num_parameters)
-
-    # model size = (num_parameters*4/1024)/1024 --> size in MB
-    # model_size = (num_parameters*4/1024)/1024
-    # print("Model size: " + str(model_size) + " MB")
-
 
 def train(train_loader, net, criterion, optimizer, epoch):
     avg_loss = np.array([])
@@ -90,8 +80,6 @@ def train(train_loader, net, criterion, optimizer, epoch):
         loss.backward()
         optimizer.step()
 
-    print("AVG LOSS: " + str(np.mean(avg_loss)))
-    return np.mean(avg_loss)
 
 
 def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):

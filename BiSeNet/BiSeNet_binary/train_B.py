@@ -12,14 +12,18 @@ import torchvision.utils as vutils
 from tensorboardX import SummaryWriter
 from ptflops import get_model_complexity_info
 from model_B import BiSeNet
-from config import cfg
-from loading_data import loading_data
 from utils import *
 from timer import Timer
 import pdb
 import torch.nn.functional as F
 import torch.nn.utils.prune as prune
 import torch.nn as nn
+import sys
+
+sys.path.append("../..")
+
+from config import cfg
+from loading_data import loading_data
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
@@ -30,15 +34,7 @@ train_loader, val_loader, restore_transform = loading_data()
 
 
 def bce_loss(pred, label):
-    """Computes binary cross-entropy loss for a binary classification task.
 
-    Args:
-        pred (torch.Tensor): Predicted logits (before sigmoid) of shape (batch_size, 1, H, W).
-        label (torch.Tensor): Ground-truth binary labels of shape (batch_size, H, W).
-
-    Returns:
-        torch.Tensor: Scalar tensor of mean binary cross-entropy loss.
-    """
     # Flatten tensors
     pred = pred.view(-1)
     label = label.view(-1)
@@ -51,7 +47,7 @@ def bce_loss(pred, label):
 
 def main():
 
-    cfg_file = open('./config.py',"r")  
+    cfg_file = open('../../config.py', "r")
     cfg_lines = cfg_file.readlines()
     
     with open(log_txt, 'a') as f:
@@ -74,7 +70,6 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=cfg.TRAIN.LR, weight_decay=cfg.TRAIN.WEIGHT_DECAY)
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time' : Timer(),'val time' : Timer()} 
-    validate(val_loader, net, criterion, optimizer, -1, restore_transform)
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
         _t['train time'].tic()
         train(train_loader, net, criterion, optimizer, epoch)
@@ -94,15 +89,11 @@ def main():
         for module in net.modules():
             if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
                 prune.remove(module, name='weight')
-'''
-    #computing flops and number of parameters
+
+    # Computing flops and number of parameters
     flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
     print(flops, num_parameters)
-    
-    #model size = (num_parameters*4/1024)/1024 --> size in MB
-    model_size = (int(num_parameters)*4/1024)/1024
-    print("Model size: " + str(model_size) + " MB")
-'''
+
 def train(train_loader, net, criterion, optimizer, epoch):
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data

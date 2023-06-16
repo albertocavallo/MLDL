@@ -12,13 +12,17 @@ import torchvision.transforms as standard_transforms
 import torchvision.utils as vutils
 from tensorboardX import SummaryWriter
 from ptflops import get_model_complexity_info
-
 from model import ENet
-from config import cfg
-from loading_data import loading_data
 from utils import *
 from timer import Timer
 import pdb
+import sys
+
+sys.path.append("../..")
+
+from config import cfg
+from loading_data import loading_data
+
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
@@ -29,7 +33,7 @@ train_loader, val_loader, restore_transform = loading_data()
 
 def main():
 
-    cfg_file = open('./config.py',"r")  
+    cfg_file = open('../../config.py',"r")
     cfg_lines = cfg_file.readlines()
     
     with open(log_txt, 'a') as f:
@@ -63,10 +67,7 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=cfg.TRAIN.LR, weight_decay=cfg.TRAIN.WEIGHT_DECAY)
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time' : Timer(),'val time' : Timer()} 
-    
-    #validate function
-    validate_instanceSeg(val_loader, net, criterion, optimizer, -1, restore_transform)
-        
+
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
 
         print(f"EPOCH {epoch+1}")
@@ -83,18 +84,9 @@ def main():
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
 
-    #computing flops and number of parameters
-    #flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
-    #print(flops, num_parameters)
-    
-    #model size = (num_parameters*4/1024)/1024 --> size in MB
-    #model_size = (num_parameters*4/1024)/1024
-    #print("Model size: " + str(model_size) + " MB")
-
 def train(train_loader, net, criterion, optimizer, epoch):
 
-    avg_loss = np.array([])
-    
+
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data
         inputs = Variable(inputs).cuda()
@@ -104,19 +96,14 @@ def train(train_loader, net, criterion, optimizer, epoch):
         outputs = net(inputs)
 
         loss = criterion(outputs, labels.long())
-        avg_loss = np.append(avg_loss, loss.data.cpu().numpy())
-        
+
         loss.backward()
         optimizer.step()
         
-    print("AVG LOSS: " + str(np.mean(avg_loss)))
-    
+
 def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
     net.eval()
     criterion.cpu()
-    input_batches = []
-    output_batches = []
-    label_batches = []
     
     num_classes = 5
     iou_sum_classes = [0,0,0,0,0]

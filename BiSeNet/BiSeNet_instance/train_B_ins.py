@@ -12,12 +12,16 @@ import torchvision.utils as vutils
 from tensorboardX import SummaryWriter
 from ptflops import get_model_complexity_info
 from model_B import BiSeNet
-from config import cfg
-from loading_data import loading_data
 from utils import *
 from timer import Timer
 import pdb
 import torch.nn.functional as F
+import sys
+
+sys.path.append("../..")
+
+from config import cfg
+from loading_data import loading_data
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
@@ -49,7 +53,7 @@ def bce_loss(pred, label):
 
 def main():
 
-    cfg_file = open('./config.py',"r")  
+    cfg_file = open('../../config.py',"r")
     cfg_lines = cfg_file.readlines()
     
     with open(log_txt, 'a') as f:
@@ -71,16 +75,14 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=cfg.TRAIN.LR, weight_decay=cfg.TRAIN.WEIGHT_DECAY)
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time' : Timer(),'val time' : Timer()} 
-    validate(val_loader, net, criterion, optimizer, -1, restore_transform)
 
-    losses = np.array([])
 
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
         print(f"EPOCH {epoch+1}")
 
         _t['train time'].tic()
-        loss = train(train_loader, net, criterion, optimizer, epoch)
-        losses = np.append(losses, loss)
+        train(train_loader, net, criterion, optimizer, epoch)
+
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
         
@@ -89,21 +91,9 @@ def main():
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
 
-    print("LOSSES VECTOR")
-    print(losses)
-'''
-    #computing flops and number of parameters
-    flops, num_parameters = get_model_complexity_info(net, (3,800,800), as_strings=True)
-    print(flops, num_parameters)
-    
-    #model size = (num_parameters*4/1024)/1024 --> size in MB
-    model_size = (int(num_parameters)*4/1024)/1024
-    print("Model size: " + str(model_size) + " MB")
-'''
+
 def train(train_loader, net, criterion, optimizer, epoch):
 
-    avg_loss = np.array([])
-    
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data
         inputs = Variable(inputs).cuda()
@@ -116,22 +106,12 @@ def train(train_loader, net, criterion, optimizer, epoch):
         loss1 += criterion(outputs1, labels)
         loss2 += criterion(outputs2, labels)
         loss3 += criterion(outputs3, labels)
-        '''
-        for i in range(5):
-          loss1 += criterion(outputs1[:,i,:,:], labels.float())
-          loss2 += criterion(outputs2[:,i,:,:], labels.float())
-          loss3 += criterion(outputs3[:,i,:,:], labels.float())
-        '''
+
         loss =loss1+loss2+loss3
-        
-        avg_loss = np.append(avg_loss, loss.data.cpu().numpy())
-        
         loss.backward()
         
         optimizer.step()
 
-    print("AVG LOSS: " + str(np.mean(avg_loss)))
-    return np.mean(avg_loss)
 
 
 
@@ -166,8 +146,11 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
     #dividing each value for len(val_loader)
     mean_iu_classes = [x / len(val_loader) for x in iou_sum_classes] 
 
-    print("MEAN IOU:")
-    print(mean_iu_classes)
+    print(f"MEAN IOU - NOTHING (0): {mean_iu_classes[0]}")
+    print(f"MEAN IOU - ALU     (1): {mean_iu_classes[1]}")
+    print(f"MEAN IOU - CARTON  (2): {mean_iu_classes[2]}")
+    print(f"MEAN IOU - BOTTLE  (3): {mean_iu_classes[3]}")
+    print(f"MEAN IOU - NYLON   (4): {mean_iu_classes[4]}")
 
     net.train()
     criterion.cuda()

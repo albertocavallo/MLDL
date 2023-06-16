@@ -1,5 +1,5 @@
-# Project-WasteSemSeg
-This repository is a starter-code setup for Resource Constraint Recyclable Waste Segmentation project. It provides the code base for training ENet on the ReSort dataset for binary class segmentation.
+# Resource Constraint Recyclable Waste Segmentation
+This repository include the setup for Resource Constraint Recyclable Waste Segmentation. It provides the codes for training ENet, BiSeNet and ICNet on the ReSort dataset for binary and instance class segmentation.
 
 ## Usage
 
@@ -8,12 +8,13 @@ This repository is a starter-code setup for Resource Constraint Recyclable Waste
 * Unzip the ```dataset.zip``` into the project folder.
 * Modify the root path of the dataset by changing ```__C.DATA.DATA_PATH``` in ```config.py```.
 
-### Training
-* Use ```python train.py``` command to train the model.
-* ```train.py``` also provides the flexibility of either training the entire model (encoder + decoder) or just the encoder which can be performed by changing ```__C.TRAIN.STAGE``` in ```config.py```.
-* To Do
-  - For Instance Segmentation, the training loss needs to be modified from Binary Cross Entropy.
-  - ```model.py``` contains the model definition of ENet. To train on newer models such as the ICNet model definition of such models needs to be added in```model.py```.
-  - Changing from Binary Segmentation to Instance Segmentation the ```validate``` function of ```train.py``` and dataloader class ```resortit``` needs to be modified accordingly.
-  - Scripts to calculate ```FLOPS``` and  ```# of trainable model parameters```.
+### Requirements installation
+* Run the following command to install all the requirements:  
+       `pip install -r requirements.txt`
 
+### Training
+* Move to the folder of the desired segmentation model among ENet, BiSeNet, or ICNet, for binary or instance segmentation. execute the related train file, for example for ENet in binary segmentation run: `train_E.py`
+
+### For data augmentation
+* To apply data augmentation to the dataset run the ```data_augmentation.py``` file.
+* To remove data augmentation and return the original dataset run the ```remove_data.py``` file.

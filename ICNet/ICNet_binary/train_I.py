@@ -3,8 +3,6 @@ from torch import optim
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import StepLR
 import torchvision.transforms as standard_transforms
-from tensorboardX import SummaryWriter
-
 from model_I import ICNet
 from loading_data import loading_data
 from utils import *
@@ -12,6 +10,13 @@ from timer import Timer
 from loss_I import ICNetLoss
 import torch.nn.utils.prune as prune
 import torch.nn as nn
+import sys
+
+sys.path.append("../..")
+
+from config import cfg
+from loading_data import loading_data
+
 
 
 exp_name = cfg.TRAIN.EXP_NAME
@@ -24,7 +29,7 @@ train_loader, val_loader, restore_transform = loading_data()
 
 def main():
 
-    cfg_file = open('config.py', "r")
+    cfg_file = open('../../config.py', "r")
     cfg_lines = cfg_file.readlines()
 
     with open(log_txt, 'a') as f:
@@ -33,20 +38,6 @@ def main():
         torch.cuda.set_device(cfg.TRAIN.GPU_ID[0])
     torch.backends.cudnn.benchmark = True
 
-    ''' # ENet
-    if cfg.TRAIN.STAGE == 'all':
-        net = ENet(only_encode=False)  # ENet / BiSeNet / ICNet
-        if cfg.TRAIN.PRETRAINED_ENCODER != '':
-            # Load the pretrained_encoder
-            encoder_weight = torch.load(cfg.TRAIN.PRETRAINED_ENCODER)
-            del encoder_weight['classifier.bias']
-            del encoder_weight['classifier.weight']
-            # pdb.set_trace()
-            net.encoder.load_state_dict(encoder_weight)
-    elif cfg.TRAIN.STAGE == 'encoder':
-        net = ENet(only_encode=True)
-    # ---------------------
-    '''
     # ICNet
     net = ICNet(num_classes=1)
     # ---------------------
@@ -58,8 +49,6 @@ def main():
         net = net.cuda()
 
     net.train()
-    # Criterion for ENet
-    # criterion = torch.nn.BCEWithLogitsLoss().cuda()
 
     # Criterion for ICNet
     criterion = ICNetLoss()
@@ -68,7 +57,6 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=cfg.TRAIN.LR, weight_decay=cfg.TRAIN.WEIGHT_DECAY)
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time': Timer(), 'val time': Timer()}
-    validate(val_loader, net, criterion, optimizer, -1, restore_transform)
 
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
         _t['train time'].tic()
@@ -90,6 +78,9 @@ def main():
             if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
                 prune.remove(module, name='weight')
 
+    # Computing flops and number of parameters
+    flops, num_parameters = get_model_complexity_info(net, (3, 800, 800), as_strings=True)
+    print(flops, num_parameters)
 
 # Define the training function that takes in the data loader, the model, the loss function, the optimizer, and the epoch
 def train(train_loader, net, criterion, optimizer, epoch):
