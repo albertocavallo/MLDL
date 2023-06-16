@@ -15,8 +15,8 @@ This repository include the setup for Resource Constraint Recyclable Waste Segme
 ### Training
 * Move to the folder of the desired segmentation model among ENet, BiSeNet, or ICNet, for binary segmentation. execute the related train file, for example for ENet run: `train_E.py`
 * To use the instance segmentation modify:
-- the ```__C.DATA.NUM_CLASSES``` in ```config.py``` from `2` to `5`.
-- Comment line 45 in ```resortit.py```
+  * the ```__C.DATA.NUM_CLASSES``` in ```config.py``` from `2` to `5`.
+  * Comment line 45 in ```resortit.py```
 
 ### For data augmentation
 * To apply data augmentation to the dataset run the ```data_augmentation.py``` file.
