@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../..")
 from config import cfg
 import torch
 import torch.nn as nn

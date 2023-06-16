@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../..")
 import os
 import random
 import numpy as np
@@ -12,16 +15,11 @@ import torchvision.utils as vutils
 from tensorboardX import SummaryWriter
 from ptflops import get_model_complexity_info
 from model_B import BiSeNet
-from utils import *
 from timer import Timer
 import pdb
 import torch.nn.functional as F
 import torch.nn.utils.prune as prune
 import torch.nn as nn
-import sys
-
-sys.path.append("../..")
-
 from config import cfg
 from loading_data import loading_data
 

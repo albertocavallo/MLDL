@@ -1,6 +1,8 @@
+import sys
+
+sys.path.append("../..")
 import os
 import random
-
 import torch
 from torch import optim
 from torch.autograd import Variable
@@ -16,10 +18,6 @@ from model import ENet
 from utils import *
 from timer import Timer
 import pdb
-import sys
-
-sys.path.append("../..")
-
 from config import cfg
 from loading_data import loading_data
 

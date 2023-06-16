@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../..")
 import torch
 from torch import optim
 from torch.autograd import Variable
@@ -8,10 +11,6 @@ from loading_data import loading_data
 from utils import *
 from timer import Timer
 from loss_I import ICNetLoss
-import sys
-
-sys.path.append("../..")
-
 from config import cfg
 from loading_data import loading_data
 

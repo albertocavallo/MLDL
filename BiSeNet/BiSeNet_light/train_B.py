@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("../..")
 import os
 import random
 import numpy as np
@@ -16,10 +19,6 @@ from utils import *
 from timer import Timer
 import pdb
 import torch.nn.functional as F
-import sys
-
-sys.path.append("../..")
-
 from config import cfg
 from loading_data import loading_data
 

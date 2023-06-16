@@ -1,6 +1,8 @@
+import sys
+
+sys.path.append("../..")
 import os
 import random
-
 import torch
 from torch import optim
 from torch.autograd import Variable
