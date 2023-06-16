@@ -1,6 +1,5 @@
 import torch
 from torchvision import models
-from mobilenetv3 import MobileNetV3_Large
 
 
 class resnet18(torch.nn.Module):
