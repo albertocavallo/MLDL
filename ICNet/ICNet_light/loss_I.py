@@ -12,7 +12,6 @@ class ICNetLoss(nn.BCEWithLogitsLoss):
     """Cross Entropy Loss for ICNet"""
 
     def __init__(self, aux_weight=0.4):
-        # Why aux_weight is 0.4 ???
         super(ICNetLoss, self).__init__()
         self.aux_weight = aux_weight
 
