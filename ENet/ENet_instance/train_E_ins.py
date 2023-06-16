@@ -127,7 +127,7 @@ def validate_instanceSeg(val_loader, net, criterion, optimizer, epoch, restore):
           labels_mask = (labels == c).cpu().numpy()
 
           #computation of the iou for that class using the function in utils.py
-          class_iou = calculate_mean_iu(pred_mask, labels_mask, 5)
+          class_iou = calculate_mean_iu(pred_mask, labels_mask, 2)
 
           #accumulate the values in an array
           iou_sum_classes[c] += class_iou
