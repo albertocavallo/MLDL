@@ -18,7 +18,6 @@ from loading_data import loading_data
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
-writer = SummaryWriter(cfg.TRAIN.EXP_PATH + '/' + exp_name)
 
 pil_to_tensor = standard_transforms.ToTensor()
 train_loader, val_loader, restore_transform = loading_data()
