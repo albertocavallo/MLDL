@@ -22,6 +22,7 @@ import torch.nn.utils.prune as prune
 import torch.nn as nn
 from config import cfg
 from loading_data import loading_data
+from utils import *
 
 exp_name = cfg.TRAIN.EXP_NAME
 log_txt = cfg.TRAIN.EXP_LOG_PATH + '/' + exp_name + '.txt'
